@@ -6,13 +6,13 @@ import pathlib
 import shutil
 import tempfile
 from contextlib import asynccontextmanager
-
 import google.generativeai as genai
 import pandas as pd
 import pytz
 from dotenv import load_dotenv
 from fastapi import FastAPI, File, UploadFile, Request
 from fastapi.middleware.cors import CORSMiddleware
+from .preprocessing.helpers import remove_empty_values, validate_headers
 
 TEMP_FOLDER = "_temp"
 
@@ -48,6 +48,13 @@ async def upload_csv(file: UploadFile = File(...)):
     file_hash = hashlib.sha256(contents).hexdigest()[0:8]
     df = pd.read_csv(io.StringIO(contents.decode('utf-8')))
 
+    # Validate headers
+    if not validate_headers(df):
+        return {"error": "Invalid headers in the CSV file."}
+
+    # Remove records with empty values
+    df = remove_empty_values(df)
+
     with open(f'{TEMP_FOLDER}/{file.filename}', 'wb') as temp_file:
         temp_file.write(contents)
 
@@ -59,7 +66,3 @@ async def upload_csv(file: UploadFile = File(...)):
     os.remove(file_path)
     genai.delete_file(uploaded_file.name)
     return {"filename": file.filename, "data": df.to_dict(orient="records"), "summary": response.text}
-
-if __name__ == "__main__":
-    import uvicorn
-    uvicorn.run(app, host="0.0.0.0", port=8000)
