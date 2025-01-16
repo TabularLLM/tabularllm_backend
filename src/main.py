@@ -38,7 +38,7 @@ app.add_middleware(
 def get_customized_model(filename: str):
     return genai.GenerativeModel(
         model_name="gemini-2.0-flash-exp",
-        system_instruction=f"You are an expert data analyst. You will provide basic statistical data and insights based on the attached dataset. Only respond with text related to your analysis.",
+        system_instruction=f"You are an expert data analyst. You will provide basic statistical data and insights based on the attached dataset. Only respond with text related to your analysis. Format it in JSON.",
     )
 
 @app.post("/upload-csv/")
@@ -61,7 +61,7 @@ async def upload_csv(file: UploadFile = File(...)):
     # TODO: Assign a UUID name
     uploaded_file = genai.upload_file(path=file_path, name=f"file-{file_hash}", mime_type="text/csv")
     response = await get_customized_model(uploaded_file.name).generate_content_async(
-        [uploaded_file, "Provide the purpose and statistics of the attached data."]
+        [uploaded_file, "Provide a list of attributtes found in the uploaded file. Assign either a numerical or categorical value to each attribute. If categorical, provide a list of possible values. If numerical, provide the range of values and an average value."],
     )
     os.remove(file_path)
     genai.delete_file(uploaded_file.name)
