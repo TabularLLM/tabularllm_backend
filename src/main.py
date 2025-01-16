@@ -12,7 +12,7 @@ import pandas as pd
 import pytz
 from dotenv import load_dotenv
 from fastapi import FastAPI, File, UploadFile, Request
-
+from fastapi.middleware.cors import CORSMiddleware
 
 TEMP_FOLDER = "_temp"
 
@@ -25,16 +25,21 @@ async def lifespan(app: FastAPI):
     os.makedirs(TEMP_FOLDER)
     yield
 
-
 app = FastAPI(lifespan=lifespan)
 
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 def get_customized_model(filename: str):
     return genai.GenerativeModel(
         model_name="gemini-2.0-flash-exp",
         system_instruction=f"You are an expert data analyst. You will provide basic statistical data and insights based on the attached dataset. Only respond with text related to your analysis.",
     )
-
 
 @app.post("/upload-csv/")
 async def upload_csv(file: UploadFile = File(...)):
@@ -54,3 +59,7 @@ async def upload_csv(file: UploadFile = File(...)):
     os.remove(file_path)
     genai.delete_file(uploaded_file.name)
     return {"filename": file.filename, "data": df.to_dict(orient="records"), "summary": response.text}
+
+if __name__ == "__main__":
+    import uvicorn
+    uvicorn.run(app, host="0.0.0.0", port=8000)
