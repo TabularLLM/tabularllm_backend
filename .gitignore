@@ -9,3 +9,7 @@ __pycache__/
 
 # Pycharm files
 .idea/
+
+# Temp files
+_temp/
+datasets/creditcard.csv
