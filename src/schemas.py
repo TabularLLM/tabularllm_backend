@@ -18,6 +18,8 @@ def provide_example_schema():
         number_of_categorical_features: int \
         general_analysis: str \
         averages_per_numerical_feature: Dict[str, float] \
-        count_of_unique_fields_per_categorical_feature: Dict[str, Dict[str, int]]"
+        count_of_unique_fields_per_categorical_feature: Dict[str, Dict[str, int]]\
+        The number of categorical features should match the number of features in count_of_unique_fields_per_categorical_feature. \
+        and the number of numerical features should match the number of features in averages_per_numerical_feature. Ensure that that is consistent."
 
     return example_schema

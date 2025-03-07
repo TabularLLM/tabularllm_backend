@@ -13,6 +13,6 @@ def intial_prompt_with_few_shot():
           The numerical features are: 'Duration of Credit (month)', 'Credit Amount', 'Installment per cent', 'Age (years)', 'No of dependents'. The categorical features are: 'Creditability', 'Account Balance', 'Payment Status of Previous Credit', 'Purpose', 'Value Savings/Stock'.\
           The average values for the numerical features are: 'Duration of Credit (month)': 11.33, 'Credit Amount': 1865.33, 'Installment per cent': 2.67, 'Age (years)': 35.33, 'No of dependents': 1.44. \
           The count of categories for the categorical features are: 'Creditability': {{1: 9}}, 'Account Balance': {{'< 0 DM': 7, '0 < Balance < 200 DM': 1, 'No Checking Account': 1}}, 'Payment Status of Previous Credit': {{'Critical Account': 9}}, 'Purpose': {{'Furniture/Equipment': 1, 'New car': 6, 'Business': 1, 'Radio/Television': 1}}, 'Value Savings/Stock': {{'< 100 DM': 9}}. \
-          Based on my approach and calculations, given the new dataset I've uploaded, conduct a similar analysis and provide the results."
+        Based on my approach and calculations, given the new dataset I've uploaded, conduct a similar analysis and provide the results."
     
     return example_prompt
