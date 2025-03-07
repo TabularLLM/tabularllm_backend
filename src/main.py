@@ -1,11 +1,14 @@
 import hashlib
 import io
 import os
+import json, requests
 import shutil
 from contextlib import asynccontextmanager
 import uuid
 import string
 
+from .prompts import intial_prompt_with_few_shot
+from .schemas import AnalysisResponse, provide_example_schema
 import google.generativeai as genai
 import pandas as pd
 from dotenv import load_dotenv
@@ -38,6 +41,30 @@ app.add_middleware(
 )
 
 # Meta prompting for system instructions.
+import json
+
+def strip_code_block(text):
+    # Remove leading/trailing whitespace
+    text = text.strip()
+    # Remove starting markdown code block marker if present
+    if text.startswith("```json"):
+        text = text[len("```json"):].strip()
+    # Remove trailing markdown code block marker if present
+    if text.endswith("```"):
+        text = text[:-len("```")].strip()
+    return text
+
+def parse_json_response(response):
+    # If response is a list, assume the first element contains the JSON text.
+    if isinstance(response, list):
+        response_text = response[0]
+    else:
+        response_text = response
+
+    cleaned_text = strip_code_block(response_text)
+    # Parse the cleaned JSON string into a dictionary
+    return json.loads(cleaned_text)
+
 
 def get_customized_model(filename: str):
     return genai.GenerativeModel(
@@ -80,19 +107,14 @@ async def upload_csv(file: UploadFile = File(...)):
     # Initial Prompt
     # TODO: SCHEMA SETUP
     response = await get_customized_model(uploaded_file.name).generate_content_async(
-        [uploaded_file, 
-         "Provide a list of attributes found in the uploaded file. \
-         Assign either a numerical or categorical value to each attribute. \
-         If categorical, provide a list of possible values. \
-        If numerical, provide the range of values and an average value."]
+        [uploaded_file, intial_prompt_with_few_shot()+provide_example_schema()]
     )
 
     #File Cleanup
     os.remove(file_path)
     genai.delete_file(uploaded_file.name)
     
-    return {
-        "filename": file.filename,
-        "data": df.to_dict(orient="records"),
-        "summary": response.text
-    }
+    json_formatted =parse_json_response(response.text)
+    print(json_formatted)
+
+    return json_formatted
