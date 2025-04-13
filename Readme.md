@@ -31,9 +31,15 @@ source venv/bin/activate
 To install the required dependencies, run:
 
 ```bash
-pip install -r requirements>dev.txt
+pip install -r requirements.txt
 ```
 
 ### 4. Enviromental Variables
 
 You must have a .env file created with the given API keys for the project.
+
+### 5. Run Fastapi Application
+
+```bash
+fastapi dev ./app/main.py
+```
