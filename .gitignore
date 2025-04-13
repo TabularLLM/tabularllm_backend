@@ -7,9 +7,3 @@ __pycache__/
 # Environment variables
 .env
 
-# Pycharm files
-.idea/
-
-# Temp files
-_temp/
-datasets/creditcard.csv
